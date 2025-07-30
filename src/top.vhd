@@ -46,10 +46,10 @@ entity top is
 end top;
 
 architecture Behavioral of top is
+    
     signal current_cells_state : t_state := initial_state; -- Initialize the game state
     signal next_cells_state : t_state; -- Variable to hold the next state
 
-    signal pixel_array : t_pixel_array; -- Signal to hold pixel data
     signal enable_game_logic : STD_LOGIC := '0'; -- Enable signal for game logic
 
     signal divided_clock : STD_LOGIC; -- Divided clock signal for VGA timing
@@ -76,12 +76,12 @@ begin
             enable        => enable_game_logic,
             next_state    => next_cells_state
         );  
-    -- Game logic process
-    logic_to_pixels_inst: entity work.logic_to_pixels
-     port map(
-        current_state => current_cells_state,
-        pixel_array => pixel_array
-    );
+    -- -- Game logic process
+    -- logic_to_pixels_inst: entity work.logic_to_pixels
+    --  port map(
+    --     current_state => current_cells_state,
+    --     pixel_array => pixel_array
+    -- );
     clock_divider_inst: entity work.clock_divider
      port map(
         clk_in => clk,
@@ -93,7 +93,7 @@ begin
         Port map (
             clk => divided_clock,
             rst => reset_button,
-            pixel_state => pixel_array,
+            cell_state => current_cells_state,
             hsync => hsync,
             vsync => vsync,
             red => red,

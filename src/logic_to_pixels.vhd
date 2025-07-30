@@ -27,7 +27,7 @@ use work.game_of_life_pkg.all;
 entity logic_to_pixels is
     port (
         current_state : in t_state; -- Input game state
-        pixel_array   : out t_pixel_array -- Output pixel array
+        pixel_array   : out t_state -- Output pixel array
     );
 end logic_to_pixels;
 
