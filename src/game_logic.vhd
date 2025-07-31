@@ -52,29 +52,31 @@ begin
     variable neighbor_state : integer :=0;
     begin
         if enable = '1' then
-            for pixel_y in 0 to SIZE-1 loop
-                for pixel_x in 0 to SIZE-1 loop
+            for pixel_y in 0 to GRID_SIZE-1 loop
+                for pixel_x in 0 to GRID_SIZE-1 loop
                 number_of_neighbors := 0;   
                 for dx in -1 to 1 loop
                     for dy in -1 to 1 loop
                         neighbor_x  := pixel_x+dx;
                         neighbor_y  := pixel_y+dy;
                         if neighbor_x < 0 then
-                            neighbor_x := SIZE-1;
-                        elsif neighbor_x >= SIZE then
+                            neighbor_x := GRID_SIZE-1;
+                        elsif neighbor_x >= GRID_SIZE then
                             neighbor_x := 0;
                         end if;
                         if neighbor_y < 0 then
-                            neighbor_y := SIZE-1;
-                        elsif neighbor_y >= SIZE then
+                            neighbor_y := GRID_SIZE-1;
+                        elsif neighbor_y >= GRID_SIZE then
                             neighbor_y := 0;
                         end if;
-                        if current_state(neighbor_y,neighbor_x) = '1' then
-                            neighbor_state := 1;
-                        else
-                            neighbor_state := 0;
-                        end if;
-                        number_of_neighbors := number_of_neighbors+neighbor_state ;
+                        if NOT( dx = 0 and dy = 0 )then
+                            if current_state(neighbor_y,neighbor_x) = '1' then
+                                neighbor_state := 1;
+                            else
+                                neighbor_state := 0;
+                            end if;
+                            number_of_neighbors := number_of_neighbors+neighbor_state ;
+                        end if;  
                     end loop;
                 end loop;
                 if number_of_neighbors = Neighbors_number_to_live then
