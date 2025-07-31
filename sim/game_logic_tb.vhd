@@ -30,49 +30,47 @@ architecture Behavioral of simple_game_logic_tb is
     -- Component declaration for the Unit Under Test (UUT)
     component game_logic
         Port (
-            current_state : in t_state;
-            enable        : in STD_LOGIC;
+            clk           : in  STD_LOGIC;    -- ADD THIS
+            reset         : in  STD_LOGIC;    -- ADD THIS
+            current_state : in  t_state;
+            enable        : in  STD_LOGIC;
             next_state    : out t_state
         );
     end component;
 
+    -- Clock and reset signals
+    signal clk   : STD_LOGIC := '0';
+    signal reset : STD_LOGIC := '0';
+    
     -- Inputs
     signal current_state : t_state := (others => (others => '0'));
     signal enable        : STD_LOGIC := '0';
-
+    
     -- Outputs
     signal next_state : t_state := (others => (others => '0'));
-
-    -- Helper procedure to print the 4x4 grid
-    procedure print_grid(state : t_state; name : string) is
-        variable line : string(1 to 8); -- 4 chars + 3 spaces + null
-    begin
-        report "=== " & name & " ===" severity note;
-        for row in 0 to 3 loop
-            line := "        "; -- Initialize with spaces
-            for col in 0 to 3 loop
-                if state(row, col) = '1' then
-                    line(col*2 + 1) := 'X';
-                else
-                    line(col*2 + 1) := '.';
-                end if;
-                if col < 3 then
-                    line(col*2 + 2) := ' ';
-                end if;
-            end loop;
-            report line(1 to 7) severity note;
-        end loop;
-        report "=================" severity note;
-    end procedure;
+    
+    -- Clock period definition
+    constant clk_period : time := 10 ns; -- 100MHz
 
 begin
     -- Instantiate the Unit Under Test (UUT)
     uut: game_logic 
         Port map (
+            clk           => clk,
+            reset         => reset,
             current_state => current_state,
             enable        => enable,
             next_state    => next_state
         );
+
+    -- ADD THIS: Clock generation process
+    clk_process: process
+    begin
+        clk <= '0';
+        wait for clk_period/2;
+        clk <= '1';
+        wait for clk_period/2;
+    end process;
 
     -- Stimulus process
     stim_proc: process
@@ -82,34 +80,43 @@ begin
         -- Wait for initialization
         wait for 5 ns;
         
-        -- Manually set up initial state
-        -- You can modify this pattern as needed
-        -- Example: Creating a simple blinker pattern in 4x4 grid
+        -- Apply reset
+        reset <= '1';
+        wait for 20 ns;
+        reset <= '0';
+        wait for 10 ns;
+        
+        -- Set up initial state
         current_state <= (
-            0 => ('1', '1', '1', '1'),  -- Row 0: . X . .
-            1 => ('0', '0', '0', '0'),  -- Row 1: . X . .
-            2 => ('0', '0', '0', '0'),  -- Row 2: . X . .
-            3 => ('0', '0', '0', '0')   -- Row 3: . . . .
+            0  => (others => '0'),
+            1  => (others => '0'),
+            2  => (others => '0'),
+            3  => (others => '1'),
+            4  => (others => '0'),
+            5  => (others => '0'),
+            6  => (others => '0'),
+            7  => (others => '0'),
+            8  => (others => '0'),
+            9  => (others => '0'),
+            10 => (others => '0'),
+            11 => (others => '0'),
+            12 => (others => '0'),
+            13 => (others => '0'),
+            14 => (others => '0'),
+            15 => (others => '0')
         );
         
-        -- Print initial state
-        print_grid(current_state, "INITIAL STATE");
+        wait for 20 ns;
         
-        -- Wait a bit for signals to settle
-        wait for 10 ns;
-        
-        -- Apply enable pulse
+        -- Apply enable pulse and wait for rising edge
+        wait until rising_edge(clk);
         enable <= '1';
-        wait for 10 ns;
+        wait until rising_edge(clk);
         enable <= '0';
         
         -- Wait for computation to complete
-        wait for 20 ns;
+        wait for 50 ns;
         
-        -- Print result
-        print_grid(next_state, "NEXT STATE");
-        
-        -- Count live cells in result
         report "Evolution complete. Check the output above." severity note;
         
         wait;

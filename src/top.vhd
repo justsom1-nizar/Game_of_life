@@ -46,32 +46,55 @@ entity top is
 end top;
 
 architecture Behavioral of top is
-    
+    signal display_finished : STD_LOGIC; -- Signal to indicate display is finished
     signal current_cells_state : t_state := initial_state; -- Initialize the game state
     signal next_cells_state : t_state; -- Variable to hold the next state
-
-    signal enable_game_logic : STD_LOGIC := '0'; -- Enable signal for game logic
-
+    signal enable_game_logic : STD_LOGIC ; -- Enable signal for game logic
+    signal display_finished_edge : STD_LOGIC; -- Edge detection for display finished
     signal divided_clk : STD_LOGIC; -- Divided clock signal for VGA timing
-
+    signal button_pressed : STD_LOGIC := '0'; -- Signal to detect button press
 begin
-    process(clk, reset_button)
-    begin
-        if rising_edge(clk) then
-            if reset_button = '1' then
-                current_cells_state <= initial_state; -- Reset the game state
-                enable_game_logic <= '0'; -- Disable game logic
-            elsif next_state_button = '1' then
-                enable_game_logic <= '1'; -- Enable game logic to compute the next state
-            else
-                enable_game_logic <= '0'; -- Disable game logic if no button is pressed
+process(clk)  -- Remove reset_button from sensitivity list
+begin 
+    if rising_edge(clk) then 
+        if reset_button = '1' then 
+            current_cells_state <= initial_state;
+            button_pressed <= '0';
+        else
+            -- Handle button press detection
+            if enable_game_logic = '1' and button_pressed = '0' then
+                button_pressed <= '1';  -- Mark that button was pressed
+            end if;
+            
+            -- Update state when display finishes and button was pressed
+            if display_finished_edge = '1' and button_pressed = '1' then 
+                current_cells_state <= next_cells_state;
+                button_pressed <= '0';  -- Clear the flag
             end if;
         end if;
-    end process;
-    
+    end if; 
+end process;
+ -- Detect button press
+    display_controller_inst : entity work.NextStateButton
+        Port map (
+            clk => clk,
+            reset => reset_button,
+            btn_next => display_finished,
+            next_generation => display_finished_edge
+        );
+    -- Instantiate the Next State Button Handler
+    next_state_button_handler : entity work.NextStateButton
+        Port map (
+            clk => clk,
+            reset => reset_button,
+            btn_next => next_state_button,
+            next_generation => enable_game_logic
+        );
     -- Instantiate the game logic
     game_logic_inst : entity work.game_logic
         Port map (
+            clk => clk,
+            reset => reset_button,
             current_state => current_cells_state,
             enable        => enable_game_logic,
             next_state    => next_cells_state
@@ -94,6 +117,7 @@ begin
             divided_clk => divided_clk,
             rst => reset_button,
             cell_state => current_cells_state,
+            display_finished => display_finished,
             hsync => hsync,
             vsync => vsync,
             red => red,

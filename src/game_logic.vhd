@@ -35,6 +35,8 @@ use work.game_of_life_pkg.all;
 
 entity game_logic is
  Port ( 
+    clk : in STD_LOGIC; -- System clock
+    reset : in STD_LOGIC; -- Reset signal
     current_state : in t_state;
     enable : in STD_LOGIC;
     next_state : out t_state
@@ -45,16 +47,19 @@ end game_logic;
 architecture Behavioral of game_logic is
 
 begin
-    process(enable, current_state)
+    process(clk, reset, enable, current_state)
     variable number_of_neighbors : integer := 0;
     variable neighbor_x : integer :=0;
     variable neighbor_y : integer :=0;
     variable neighbor_state : integer :=0;
     begin
-        if enable = '1' then
-            for pixel_y in 0 to GRID_SIZE-1 loop
-                for pixel_x in 0 to GRID_SIZE-1 loop
-                number_of_neighbors := 0;   
+        if rising_edge(clk) then
+            if reset = '1' then
+                next_state <= (others => (others => '0'));
+            elsif enable = '1' then
+                for pixel_y in 0 to GRID_SIZE-1 loop
+                    for pixel_x in 0 to GRID_SIZE-1 loop
+                    number_of_neighbors := 0;
                 for dx in -1 to 1 loop
                     for dy in -1 to 1 loop
                         neighbor_x  := pixel_x+dx;
@@ -90,6 +95,8 @@ begin
             end loop;
             end loop;
         end if;
+        end if;
     end process;
+
 
 end Behavioral;

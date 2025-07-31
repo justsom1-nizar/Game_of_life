@@ -8,6 +8,7 @@ entity vga_controller is
         divided_clk         : in  STD_LOGIC;
         rst         : in  STD_LOGIC;
         cell_state : in  t_state; 
+        display_finished : out STD_LOGIC;
         hsync       : out STD_LOGIC;
         vsync       : out STD_LOGIC;
         red         : out STD_LOGIC_VECTOR(3 downto 0);
@@ -86,6 +87,7 @@ architecture Behavioral of vga_controller is
         input_value        => v_count,
         is_within          => is_display_region_v
         );
+    display_finished <= '1' when v_count = VERTICAL_COUNT_MAX and h_count = HORIZONTAL_COUNT_MAX else '0';    
     is_display_region <= is_display_region_h and is_display_region_v;
     -- Set color output based on display region
     process(is_display_region, h_count, v_count, cell_state) 
@@ -99,21 +101,21 @@ architecture Behavioral of vga_controller is
         x_cell  := x_pixel/CELL_PIXEL_SIZE;
         y_cell  := y_pixel/CELL_PIXEL_SIZE;
         if is_display_region = '1' then
-                red   <= "1111";
-                green <= "1111";
-                blue  <= "1111";
-                
-            if x_pixel >= 0 and x_pixel < + GRID_SIZE*CELL_PIXEL_SIZE and y_pixel >= 0 and y_pixel < + GRID_SIZE*CELL_PIXEL_SIZE then
+            if x_pixel >= 0 and x_pixel < GRID_SIZE*CELL_PIXEL_SIZE and y_pixel >= 0 and y_pixel < GRID_SIZE*CELL_PIXEL_SIZE then
                 if cell_state(y_cell, x_cell) = '1' then
                     red   <= "1111";
                     green <= "1111";
-                    blue  <= "0000";
-                else
-                    red   <= "1111";
-                    green <= "1111";
                     blue  <= "1111";
+                else
+                    red   <= "0000";
+                    green <= "0000";
+                    blue  <= "0000";
                 end if;
-        end if;
+            else
+                red   <= "0000";
+                green <= "0000";
+                blue  <= "0000";
+            end if;
         else
             red   <= "0000";
             green <= "0000";
