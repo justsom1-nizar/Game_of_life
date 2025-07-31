@@ -52,7 +52,7 @@ architecture Behavioral of top is
 
     signal enable_game_logic : STD_LOGIC := '0'; -- Enable signal for game logic
 
-    signal divided_clock : STD_LOGIC; -- Divided clock signal for VGA timing
+    signal divided_clk : STD_LOGIC; -- Divided clock signal for VGA timing
 
 begin
     process(clk, reset_button)
@@ -86,12 +86,12 @@ begin
      port map(
         clk_in => clk,
         reset => reset_button,
-        clk_out => divided_clock
+        clk_out => divided_clk
     );
     -- Instantiate the VGA controller
     vga_controller_inst : entity work.VGA_controller
         Port map (
-            clk => divided_clock,
+            divided_clk => divided_clk,
             rst => reset_button,
             cell_state => current_cells_state,
             hsync => hsync,

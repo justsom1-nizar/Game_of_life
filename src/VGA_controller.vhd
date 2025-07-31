@@ -5,7 +5,7 @@ use IEEE.NUMERIC_STD.ALL;
 use work.game_of_life_pkg.all;
 entity vga_controller is
     Port (
-        clk         : in  STD_LOGIC;
+        divided_clk         : in  STD_LOGIC;
         rst         : in  STD_LOGIC;
         cell_state : in  t_state; 
         hsync       : out STD_LOGIC;
@@ -18,7 +18,6 @@ end vga_controller;
 
 architecture Behavioral of vga_controller is
 
-    signal divided_clock : STD_LOGIC := '0';
     signal h_count : STD_LOGIC_VECTOR(9 downto 0) := (others => '0');
     signal v_count : STD_LOGIC_VECTOR(9 downto 0) := (others => '0');
     signal h_sync_pulse : STD_LOGIC := '0';
@@ -29,17 +28,10 @@ architecture Behavioral of vga_controller is
     signal is_display_region : STD_LOGIC := '0';
 
     begin
-    -- Instantiate the clock divider directly
-    clk_div_inst : entity work.clock_divider
-        Port map (
-            clk_in  => clk,
-            reset   => rst,
-            clk_out => divided_clock
-        );
     -- Instantiate the horizontal counter
     horizental_counter_inst : entity work.horizental_counter
         Port map (
-            clk       => divided_clock,
+            clk       => divided_clk,
             reset     => rst,
             count     => h_count,
             tc        => h_tc
@@ -47,7 +39,7 @@ architecture Behavioral of vga_controller is
     -- Instantiate the vertical counter
     vertical_counter_inst : entity work.vertical_counter
         Port map (
-            clk         => divided_clock,
+            clk         => divided_clk,
             reset       => rst,
             TC_enable   => h_tc,
             count       => v_count

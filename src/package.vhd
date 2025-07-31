@@ -40,8 +40,23 @@ package game_of_life_pkg is
 
     type t_state is array (0 to GRID_SIZE-1, 0 to GRID_SIZE-1) of STD_LOGIC;
     constant initial_state : t_state := (
-        others => (others => '0')
-    );
+    0  => (others => '1'),
+    1  => (others => '0'),
+    2  => (others => '0'),
+    3  => (others => '1'),
+    4  => (others => '0'),
+    5  => (others => '0'),
+    6  => (others => '0'),
+    7  => (others => '0'),
+    8  => (others => '0'),
+    9  => (others => '0'),
+    10 => (others => '0'),
+    11 => (others => '0'),
+    12 => (others => '1'),
+    13 => (others => '0'),
+    14 => (others => '0'),
+    15 => (others => '0')
+);
     -- clock divider
     constant DIV_FACTOR : integer := 2; -- Adjust for desired frequency
     -- horizontal_counter
