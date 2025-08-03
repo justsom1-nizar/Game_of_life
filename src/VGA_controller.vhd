@@ -106,8 +106,11 @@ architecture Behavioral of vga_controller is
         y_cell  := y_pixel/CELL_PIXEL_SIZE;
         if is_display_region = '1' then
             if x_pixel >= 0 and x_pixel < GRID_SIZE*CELL_PIXEL_SIZE and y_pixel >= 0 and y_pixel < GRID_SIZE*CELL_PIXEL_SIZE then
-
-if cell_state(y_cell, x_cell) = '1' then
+                if x_cell = cursor_x and y_cell = cursor_y and game_mode = EDITING then
+                    red   <= "1111";  -- Highlight cursor position
+                    green <= "0000";
+                    blue  <= "0000";
+                elsif cell_state(y_cell, x_cell) = '1' then
                     red   <= "1111";
                     green <= "1111";
                     blue  <= "1111";

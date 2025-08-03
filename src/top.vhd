@@ -72,7 +72,7 @@ begin
             update_state <= '0';
         else
             -- Handle button press detection
-            if (enable_game_logic = '1' or game_clock = '1') and update_state = '0' then
+            if ((enable_game_logic = '1' and game_mode = MANUAL) or (game_clock = '1' AND game_mode = AUTOMATIC)) and update_state = '0' then
                 update_state <= '1';  -- Mark that button was pressed
             end if;
             
