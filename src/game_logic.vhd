@@ -39,6 +39,7 @@ entity game_logic is
     reset : in STD_LOGIC; -- Reset signal
     current_state : in t_state;
     enable : in STD_LOGIC;
+    game_mode : in t_game_mode; -- Game mode signal
     next_state : out t_state
 
  );
@@ -56,7 +57,7 @@ begin
         if rising_edge(clk) then
             if reset = '1' then
                 next_state <= (others => (others => '0'));
-            elsif enable = '1' then
+            elsif enable = '1' and game_mode /= EDITING then
                 for pixel_y in 0 to GRID_SIZE-1 loop
                     for pixel_x in 0 to GRID_SIZE-1 loop
                     number_of_neighbors := 0;

@@ -5,9 +5,13 @@ use IEEE.NUMERIC_STD.ALL;
 use work.game_of_life_pkg.all;
 entity vga_controller is
     Port (
+
         divided_clk         : in  STD_LOGIC;
         rst         : in  STD_LOGIC;
         cell_state : in  t_state; 
+        game_mode : in  t_game_mode;
+        cursor_x : in  integer; -- Cursor X position
+        cursor_y : in  integer; -- Cursor Y position
         display_finished : out STD_LOGIC;
         hsync       : out STD_LOGIC;
         vsync       : out STD_LOGIC;
@@ -102,7 +106,8 @@ architecture Behavioral of vga_controller is
         y_cell  := y_pixel/CELL_PIXEL_SIZE;
         if is_display_region = '1' then
             if x_pixel >= 0 and x_pixel < GRID_SIZE*CELL_PIXEL_SIZE and y_pixel >= 0 and y_pixel < GRID_SIZE*CELL_PIXEL_SIZE then
-                if cell_state(y_cell, x_cell) = '1' then
+
+if cell_state(y_cell, x_cell) = '1' then
                     red   <= "1111";
                     green <= "1111";
                     blue  <= "1111";
