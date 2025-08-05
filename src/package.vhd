@@ -32,68 +32,18 @@ use IEEE.NUMERIC_STD.ALL;
 package game_of_life_pkg is
     -- game_logic
 
-    constant Size : integer := 8;  -- Size of the state vector
-    constant GRID_SIZE : integer := 16;
+    constant GRID_SIZE : integer := 32;
     constant Neighbors_number_to_live : integer := 3;  -- Number of neighbors required to live
     constant Neighbors_number_to_survive : integer := 2;  -- Number of neighbors
-    constant CELL_PIXEL_SIZE : integer := 30; -- Size of each cell in pixels
+    constant CELL_PIXEL_SIZE : integer := 15; -- Size of each cell in pixels
 
     type t_state is array (0 to GRID_SIZE-1, 0 to GRID_SIZE-1) of STD_LOGIC;
-constant initial_state : t_state := (
-    0  => (
-        '0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'
-    ),
-    1  => (
-        '0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'
-    ),
-    2  => (
-        '0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'
-    ),
-    3  => (
-        '0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'
-    ),
-    4  => (
-        '0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'
-    ),
-    5  => (
-        '0','0','0','0','0','0','1','0','0','0','0','0','0','0','0','0'
-    ),
-    6  => (
-        '0','0','0','0','0','0','0','1','0','0','0','0','0','0','0','0'
-    ),
-    7  => (
-        '0','0','0','0','0','1','1','1','0','0','0','0','0','0','0','0'
-    ),
-    8  => (
-        '0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'
-    ),
-    9  => (
-        '0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'
-    ),
-    10 => (
-        '0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'
-    ),
-    11 => (
-        '0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'
-    ),
-    12 => (
-        '0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'
-    ),
-    13 => (
-        '0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'
-    ),
-    14 => (
-        '0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'
-    ),
-    15 => (
-        '0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'
-    )
-);
+constant initial_state : t_state := (others => (others => '0')) ;
 -- game modes
     type t_game_mode is (MANUAL, AUTOMATIC, EDITING);  -- Define game modes
     -- clock divider
     constant DIV_FACTOR_CLOCK : integer := 2; -- Adjust for desired frequency
-    constant DIV_FACTOR_GAME_LOGIC : integer := 1000000; -- Adjust for game logic frequency
+    constant DIV_FACTOR_GAME_LOGIC : integer := 25000000; -- Adjust for game logic frequency
     -- horizontal_counter
     constant HORIZONTAL_COUNT_MAX : integer := 799; -- Horizontal count max value
     constant VERTICAL_COUNT_MAX : integer := 520; -- Vertical count max value
