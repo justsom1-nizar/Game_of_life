@@ -4,6 +4,9 @@ use IEEE.NUMERIC_STD.ALL;
 use work.game_of_life_pkg.all;
 
 entity clock_divider is
+    generic (
+            DIV_FACTOR : integer  -- Declaring a generic integer constant
+        );
     Port (
         clk_in  : in  STD_LOGIC;  -- Input clock
         reset   : in  STD_LOGIC;  -- Reset signal

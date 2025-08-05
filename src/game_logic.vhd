@@ -38,7 +38,9 @@ entity game_logic is
     clk : in STD_LOGIC; -- System clock
     reset : in STD_LOGIC; -- Reset signal
     current_state : in t_state;
-    enable : in STD_LOGIC;
+    manual_enable : in STD_LOGIC;
+    automatic_enable : in STD_LOGIC;
+    game_mode : in t_game_mode; -- Game mode signal
     next_state : out t_state
 
  );
@@ -47,7 +49,7 @@ end game_logic;
 architecture Behavioral of game_logic is
 
 begin
-    process(clk, reset, enable, current_state)
+    process(clk)
     variable number_of_neighbors : integer := 0;
     variable neighbor_x : integer :=0;
     variable neighbor_y : integer :=0;
@@ -56,7 +58,7 @@ begin
         if rising_edge(clk) then
             if reset = '1' then
                 next_state <= (others => (others => '0'));
-            elsif enable = '1' then
+            elsif (manual_enable = '1' and game_mode = MANUAL) or (game_mode = AUTOMATIC and automatic_enable = '1') then
                 for pixel_y in 0 to GRID_SIZE-1 loop
                     for pixel_x in 0 to GRID_SIZE-1 loop
                     number_of_neighbors := 0;
