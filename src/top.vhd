@@ -63,6 +63,10 @@ architecture Behavioral of top is
     signal move_cursor_down_edge : STD_LOGIC;
     signal cursor_x : integer := 8;
     signal cursor_y : integer := 8;
+    signal game_clock_edge : STD_LOGIC;
+    signal move_cursor_left_latch : STD_LOGIC := '0';
+    signal move_cursor_down_latch : STD_LOGIC := '0';
+    signal toggle_cell_latch : STD_LOGIC := '0';
 begin
 process(clk)  -- Remove reset_button from sensitivity list
 begin 
@@ -72,25 +76,38 @@ begin
             update_state <= '0';
         else
             -- Handle button press detection
-            if ((enable_game_logic = '1' and game_mode = MANUAL) or (game_clock = '1' AND game_mode = AUTOMATIC)) and update_state = '0' then
+            if ((enable_game_logic = '1' and game_mode = MANUAL) or (game_clock_edge = '1' AND game_mode = AUTOMATIC)) and update_state = '0' then
                 update_state <= '1';  -- Mark that button was pressed
             end if;
-            
+            if game_mode = EDITING then
+                -- Handle cursor movement in EDITING mode
+                if move_cursor_left_edge = '1' then
+                    move_cursor_left_latch <= '1';
+                elsif move_cursor_down_edge = '1' then
+                    move_cursor_down_latch <= '1';
+                elsif enable_game_logic = '1' then
+                    toggle_cell_latch <= '1';
+                end if;
+            end if;
             -- Update state when display finishes and button was pressed
             if display_finished_edge = '1' then 
                 if game_mode = EDITING then
                     -- Handle cursor movement in EDITING mode
-                    if move_cursor_left_edge = '1' then
+                    if move_cursor_left_latch = '1' then
                         cursor_x <= (cursor_x - 1 + GRID_SIZE) mod GRID_SIZE; -- Wrap around
                     end if;
-                    if move_cursor_down_edge = '1' then
+                    if move_cursor_down_latch = '1' then
                         cursor_y <= (cursor_y + 1) mod GRID_SIZE; -- Wrap around
                     end if;
 
                     -- Toggle cell state at cursor position
-                    if enable_game_logic = '1' then
+                    if toggle_cell_latch = '1' then
                         current_cells_state(cursor_y, cursor_x) <= not current_cells_state(cursor_y, cursor_x);
                     end if;
+                    -- Clear latches after processing
+                    move_cursor_left_latch <= '0';
+                    move_cursor_down_latch <= '0';
+                    toggle_cell_latch <= '0';
                 elsif update_state = '1' then
                     current_cells_state <= next_cells_state;
                     update_state <= '0';  -- Clear the flag
@@ -99,6 +116,14 @@ begin
         end if;
     end if; 
 end process;
+--game clock_edge detection
+game_clock_edge_component: entity work.NextStateButton
+    Port map (
+        clk => clk,
+        reset => reset_button,
+        btn_next => game_clock,
+        next_generation => game_clock_edge
+    );
 -- game mode signal
 game_mode_component : entity work.game_mode
     Port map (
@@ -155,13 +180,14 @@ change_mode_button_handler: entity work.NextStateButton
             clk => clk,
             reset => reset_button,
             current_state => current_cells_state,
-            enable        => enable_game_logic,
+            manual_enable => enable_game_logic,
+            automatic_enable => game_clock_edge,
             game_mode     => game_mode,
             next_state    => next_cells_state
         );  
     game_frequency_divider_inst: entity work.clock_divider
     generic map (
-        DIV_FACTOR => 28  -- Use the defined constant for game logic frequency
+        DIV_FACTOR => DIV_FACTOR_GAME_LOGIC 
     )
     port map(
         clk_in => clk,

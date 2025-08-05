@@ -8,7 +8,7 @@
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
--- Description: Simple testbench for Game of Life with VGA output
+-- Description: Simplified testbench for Game of Life
 -- 
 -- Dependencies: 
 -- 
@@ -27,50 +27,52 @@ entity top_tb is
 end top_tb;
 
 architecture Behavioral of top_tb is
-    -- Component declaration for the Unit Under Test (UUT)
     component top
         Port (
-            clk               : in  STD_LOGIC;
-            reset_button      : in  STD_LOGIC;
-            next_state_button : in  STD_LOGIC;
-            hsync             : out STD_LOGIC;
-            vsync             : out STD_LOGIC;
-            red               : out STD_LOGIC_VECTOR(3 downto 0);
-            green             : out STD_LOGIC_VECTOR(3 downto 0);
-            blue              : out STD_LOGIC_VECTOR(3 downto 0)
+            clk                  : in  STD_LOGIC;
+            reset_button         : in  STD_LOGIC;
+            next_state_button    : in  STD_LOGIC;
+            change_mode_button   : in  STD_LOGIC;
+            move_cursor_left     : in  STD_LOGIC;
+            move_cursor_down     : in  STD_LOGIC;
+            hsync                : out STD_LOGIC;
+            vsync                : out STD_LOGIC;
+            red                  : out STD_LOGIC_VECTOR(3 downto 0);
+            green                : out STD_LOGIC_VECTOR(3 downto 0);
+            blue                 : out STD_LOGIC_VECTOR(3 downto 0)
         );
     end component;
 
-    -- Inputs
-    signal clk               : STD_LOGIC := '0';
-    signal reset_button      : STD_LOGIC := '0';
-    signal next_state_button : STD_LOGIC := '0';
+    signal clk                  : STD_LOGIC := '0';
+    signal reset_button         : STD_LOGIC := '0';
+    signal next_state_button    : STD_LOGIC := '0';
+    signal change_mode_button   : STD_LOGIC := '0';
+    signal move_cursor_left     : STD_LOGIC := '0';
+    signal move_cursor_down     : STD_LOGIC := '0';
+    signal hsync                : STD_LOGIC;
+    signal vsync                : STD_LOGIC;
+    signal red                  : STD_LOGIC_VECTOR(3 downto 0);
+    signal green                : STD_LOGIC_VECTOR(3 downto 0);
+    signal blue                 : STD_LOGIC_VECTOR(3 downto 0);
 
-    -- Outputs
-    signal hsync  : STD_LOGIC;
-    signal vsync  : STD_LOGIC;
-    signal red    : STD_LOGIC_VECTOR(3 downto 0);
-    signal green  : STD_LOGIC_VECTOR(3 downto 0);
-    signal blue   : STD_LOGIC_VECTOR(3 downto 0);
-
-    -- Clock period definitions
-    constant clk_period : time := 10 ns; -- 100 MHz clock
+    constant clk_period : time := 10 ns;
 
 begin
-    -- Instantiate the Unit Under Test (UUT)
     uut: top 
         Port map (
-            clk               => clk,
-            reset_button      => reset_button,
-            next_state_button => next_state_button,
-            hsync             => hsync,
-            vsync             => vsync,
-            red               => red,
-            green             => green,
-            blue              => blue
+            clk                  => clk,
+            reset_button         => reset_button,
+            next_state_button    => next_state_button,
+            change_mode_button   => change_mode_button,
+            move_cursor_left     => move_cursor_left,
+            move_cursor_down     => move_cursor_down,
+            hsync                => hsync,
+            vsync                => vsync,
+            red                  => red,
+            green                => green,
+            blue                 => blue
         );
 
-    -- Clock process
     clk_process : process
     begin
         clk <= '0';
@@ -79,46 +81,59 @@ begin
         wait for clk_period/2;
     end process;
 
-    -- Simple stimulus process
     stim_proc: process
     begin		
-        -- Initialize inputs
         reset_button <= '0';
         next_state_button <= '0';
+        change_mode_button <= '0';
+        move_cursor_left <= '0';
+        move_cursor_down <= '0';
         
-        report "Starting simple Game of Life testbench" severity note;
-        
-        -- Apply reset
-        wait for 100 ns;
         reset_button <= '1';
         wait for 50 ns;
         reset_button <= '0';
-        report "Reset applied" severity note;
+        wait for 10 ms;
         
-        -- Wait 1 second for system to stabilize
-        wait for 30 ms;
-        report "System stabilized - ready for button press" severity note;
-        
-        -- Press next state button
-        next_state_button <= '1';
-        wait for 20 ms;  -- Hold button for 20ms (realistic button press)
-        next_state_button <= '0';
-        report "Next state button pressed" severity note;
-        
-        -- Wait and observe
-        wait for 30 ms;
-        
-        -- Press button again
+        -- Test next state button
         next_state_button <= '1';
         wait for 20 ms;
         next_state_button <= '0';
-        report "Second button press" severity note;
+        wait for 30 ms;
         
-        -- Wait and finish
-        wait for 1 sec;
-        report "Testbench completed" severity note;
+        -- Change to automatic mode
+        change_mode_button <= '1';
+        wait for 20 ms;
+        change_mode_button <= '0';
+        wait for 10 ms;  -- Let automatic mode run
         
-        wait; -- End simulation
+                -- Change to editing mode
+        change_mode_button <= '1';
+        wait for 20 ms;
+        change_mode_button <= '0';
+        wait for 1 ms;  -- Let automatic mode run
+       
+        -- Move cursor and edit cells
+        move_cursor_left <= '1';
+        wait for 20 ms;
+        move_cursor_left <= '0';
+        wait for 1 ms;
+        move_cursor_down <= '1';
+        wait for 20 ms;
+        move_cursor_down <= '0';
+        wait for 1 ms;
+        --toggle cell
+        next_state_button <= '1';
+        wait for 20 ms;
+        move_cursor_left <= '1';
+        wait for 20 ms;
+        move_cursor_left <= '0';
+        wait for 1 ms;
+        move_cursor_down <= '1';
+        wait for 20 ms;
+        move_cursor_down <= '0';
+        wait for 1 ms;
+        --toggle cell
+        next_state_button <= '1';
+        wait for 20 ms;
     end process;
-
 end Behavioral;
